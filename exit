@@ -1,0 +1,29 @@
+[33mcommit 6cbfcc770d0c63ebbbd16bd037a1145a778a9dec[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Timur Djandjgava <dj.timur.work@gmail.com>
+Date:   Fri Jan 30 15:32:56 2026 +0500
+
+    Aura Player Controller
+
+[33mcommit 4508e0b7f8ad6f540ce8a92b535d383bb5155448[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: Timur Djandjgava <dj.timur.work@gmail.com>
+Date:   Wed Jan 28 21:02:05 2026 +0500
+
+    Player and Enemy BP and Animation
+
+[33mcommit 61c588dccc71addba2e14cf96cc18f5eca76f9a0[m
+Author: Timur Djandjgava <dj.timur.work@gmail.com>
+Date:   Wed Jan 28 16:05:02 2026 +0500
+
+    Aura and Enemy character classes
+
+[33mcommit 226c81d8bf211dd02432b6376d8794b8a6930cc9[m
+Author: Timur Djandjgava <dj.timur.work@gmail.com>
+Date:   Wed Jan 28 15:15:22 2026 +0500
+
+    The Base Character Class
+
+[33mcommit 2e948c8444df2838a0e55f4513dc3aa719cee2e4[m
+Author: Timur Djandjgava <dj.timur.work@gmail.com>
+Date:   Tue Jan 27 16:55:00 2026 +0500
+
+    Inital Project Files
