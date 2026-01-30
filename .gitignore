@@ -1,16 +1,30 @@
-Binaries
-DerivedDataCache
-Intermediate
-Saved
-Build
+# Unreal Engine
+/Binaries/
+/DerivedDataCache/
+/Intermediate/
+/Saved/
+/Build/
 
-.vscode
-.vs
+# Accidental files
+exit
+
+# Visual Studio / IDE
+.vs/
+.vscode/
 *.VC.db
 *.opensdf
 *.opendb
 *.sdf
 *.sln
 *.suo
+.vsconfig
+
+# macOS
 *.xcodeproj
 *.xcworkspace
+
+# Other
+*.log
+*.tmp
+*.bak
+*.cache
