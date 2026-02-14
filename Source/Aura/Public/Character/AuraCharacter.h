@@ -9,7 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 /**
- * 
+ *
  */
 UCLASS()
 class AURA_API AAuraCharacter : public AAuraCharacterBase
@@ -23,13 +23,10 @@ public:
 
 private:
 	void InitAbilityActorInfo();
-	
+
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> ViewCamera;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> CameraBoom;
-
-
-	
 };
