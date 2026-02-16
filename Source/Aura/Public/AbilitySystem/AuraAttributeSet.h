@@ -7,6 +7,16 @@
 #include "AbilitySystemComponent.h"
 #include "AuraAttributeSet.generated.h"
 
+/*#define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) - этот макрос при компиляции автоматически сгенерирует следующие функции:
+
+GetHealth() — возвращает текущее значение(float).
+
+GetHealthAttribute() — возвращает сам объект атрибута.
+
+SetHealth(float NewVal) — устанавливает значение.
+
+InitHealth(float NewVal) — инициализирует значение.*/
+
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
