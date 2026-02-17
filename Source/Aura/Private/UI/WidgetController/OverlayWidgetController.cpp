@@ -14,6 +14,8 @@ void UOverlayWidgetController::BroadcastInitialValues()
     // Теперь мы берем данные из РЕАЛЬНОГО сета нашего персонажа
     OnHealthChanged.Broadcast(AuraAS->GetHealth());
     OnMaxHealthChanged.Broadcast(AuraAS->GetMaxHealth());
+    OnManaChanged.Broadcast(AuraAS->GetMana());
+    OnMaxManaChanged.Broadcast(AuraAS->GetMaxMana());
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
@@ -26,9 +28,12 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
     2. GetGameplayAttributeValueChangeDelegate(...) : Ты обращаешься к AbilitySystemComponent(ASC) и говоришь : 
     «Дай мне "колокольчик", который звенит каждый раз, когда меняется атрибут Здоровья».
     3 .AddUObject(this, &UOverlayWidgetController::HealthChanged) : Ты привязываешь(подписываешь) свою функцию HealthChanged к этому колокольчику.
-    4. Теперь : Как только ASC изменит здоровье(от урона или хила), он автоматически вызовет твою функцию HealthChanged.*/
+    4. Теперь : Как только ASC изменит здоровье(от урона или хила), он автоматически вызовет твою функцию HealthChanged.
+    */
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetHealthAttribute()).AddUObject(this, &UOverlayWidgetController::HealthChanged);
     AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetMaxHealthAttribute()).AddUObject(this, &UOverlayWidgetController::MaxHealthChanged);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetManaAttribute()).AddUObject(this, &UOverlayWidgetController::ManaChanged);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetMaxManaAttribute()).AddUObject(this, &UOverlayWidgetController::MaxManaChanged);
 }
 
 /** 
@@ -45,6 +50,16 @@ void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data)
 void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
 {
     OnMaxHealthChanged.Broadcast(Data.NewValue);
+}
+
+void UOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) const
+{
+    OnManaChanged.Broadcast(Data.NewValue);
+}
+
+void UOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) const
+{
+    OnMaxManaChanged.Broadcast(Data.NewValue);
 }
 /**
 Почему это сделано именно так? (Архитектура)
