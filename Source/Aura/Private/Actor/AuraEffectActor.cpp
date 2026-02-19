@@ -17,7 +17,7 @@ void AAuraEffectActor::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AAuraEffectActor::ApplyEffectToTarget(AActor* Target, TSubclassOf<UGameplayEffect> GameplayEffectClass)
+void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
 	/** One way to get AbilitySystemCopmonent of Target
 	IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(Target);
@@ -26,7 +26,7 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* Target, TSubclassOf<UGameplay
 		ASCInterface->GetAbilitySystemComponent();
 	}*/
 	//Way by using ASC BlueprintLibrary
-	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target);
+	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (TargetASC == nullptr) return;
 	check(GameplayEffectClass);
 
@@ -39,7 +39,5 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* Target, TSubclassOf<UGameplay
 	
 	//We need FGameplayEffectSpec. So we taking it out from EffectSpecHandle, and because it TSharedPointer we derefference it(by using "*" upward)
 	TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
-
-
 }
 
