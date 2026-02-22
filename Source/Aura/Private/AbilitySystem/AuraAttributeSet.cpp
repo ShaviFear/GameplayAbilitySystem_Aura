@@ -4,6 +4,7 @@
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 
+/** Начальная инициализация значений при создании объекта. */
 UAuraAttributeSet::UAuraAttributeSet()
 {
 	InitHealth(50.f);
@@ -16,13 +17,39 @@ void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// Регистрируем переменную Health для репликации
+	/** * Настройка сетевой рассылки (DOREPLIFETIME).
+	 * COND_None: отправлять всем.
+	 * REPNOTIFY_Always: вызывать OnRep-функцию на клиенте, даже если значение пришло такое же, как было (важно для точности GAS).
+	 */
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Mana, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
 }
+// 
+/** Функция вызывается тогда, когда значение атрибута меняется, и изменения которые она вносит происходят до изменения самого атрибута
+*	Применяется для Clamp значений
+*	Функция не меняет modifier, а изменяет его возвращаемое значение
+	 */
+void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
 
+	if (Attribute == GetHealthAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+	}
+
+	if (Attribute == GetManaAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
+	}
+}
+
+
+/** * Макрос GAMEPLAYATTRIBUTE_REPNOTIFY сообщает внутренней логике GAS на клиенте,
+ * что значение обновилось, чтобы сработали все связанные события и делегаты.
+ */
 void UAuraAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Health, OldHealth);

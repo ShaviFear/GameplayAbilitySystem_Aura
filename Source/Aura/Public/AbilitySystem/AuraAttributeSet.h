@@ -33,7 +33,12 @@ class AURA_API UAuraAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 public:
 	UAuraAttributeSet();
+
+	/** Регистрирует переменные для сетевой репликации (передачи данных от сервера к клиентам). */
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	/** Вызывается ПЕРЕД изменением атрибута. Идеальное место для "клампинга" (ограничения значений, например, чтобы Health не стало > MaxHealth). */
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Health, Category = "Vital Attributes")
 	FGameplayAttributeData Health;
@@ -52,6 +57,10 @@ public:
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, MaxMana);
 
 
+	/* * OnRep-функции (RepNotify).
+	 * Вызываются на клиентах, когда сервер прислал новое значение атрибута.
+	 * Нужны, чтобы система способностей (GAS) на клиенте узнала об изменениях и обновила UI.
+	 */
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
 
