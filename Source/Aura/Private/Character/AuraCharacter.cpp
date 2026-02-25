@@ -65,6 +65,8 @@ void AAuraCharacter::InitAbilityActorInfo()
 	check(AuraPlayerState);
 	// 1. Сообщаем ASC, кто его Владелец (PlayerState) и кто его Аватар (этот Character)
 	AuraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(AuraPlayerState, this);
+	// 2. Вызываем метод привязывающий наши callback функции к необходимым делегатам, после того, как параметры инициализированы
+	Cast<UAuraAbilitySystemComponent>(AuraPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet();
 	// 2. Кэшируем указатели локально для удобства(чтобы не тянуться в PlayerState каждый раз)
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = AuraPlayerState->GetAttribureSet();
