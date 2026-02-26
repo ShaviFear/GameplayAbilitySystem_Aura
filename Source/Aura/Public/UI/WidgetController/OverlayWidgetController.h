@@ -4,19 +4,39 @@
 
 #include "CoreMinimal.h"
 #include "UI/WidgetController/AuraWidgetController.h"
+#include "GameplayEffectTypes.h"
 #include "OverlayWidgetController.generated.h"
+
+class UAuraUserWidget;
+
 //Delegate type
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature, float, NewMana);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature, float, NewMaxMana);
 
-struct FOnAttributeChangeData;
+USTRUCT(BlueprintType)
+struct FUIWidgetRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTag MessageTag = FGameplayTag();//Initializing with empty Gameplay Tag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText Message = FText();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UAuraUserWidget> MessageWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UTexture2D> Image = nullptr;
+};
 /**
- * 
+ *
  */
-//We can see this class in Blueprint and create Blueprint of it
-UCLASS(BlueprintType,Blueprintable)
+ //We can see this class in Blueprint and create Blueprint of it
+UCLASS(BlueprintType, Blueprintable)
 class AURA_API UOverlayWidgetController : public UAuraWidgetController
 {
 	GENERATED_BODY()
@@ -38,7 +58,9 @@ public:
 	FOnMaxManaChangedSignature OnMaxManaChanged;
 
 
-
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
+	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
 	//Functions that have special needed for GAS signatures to qualify them to bind to the delegate that is broadcasts when attributes changes
 	void HealthChanged(const FOnAttributeChangeData& Data) const;
