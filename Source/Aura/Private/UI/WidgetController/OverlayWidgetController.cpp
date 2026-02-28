@@ -28,13 +28,33 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
     а описание того, что такое "Здоровье" для движка.
     2. GetGameplayAttributeValueChangeDelegate(...) : Ты обращаешься к AbilitySystemComponent(ASC) и говоришь : 
     «Дай мне "колокольчик", который звенит каждый раз, когда меняется атрибут Здоровья».
-    3 .AddUObject(this, &UOverlayWidgetController::HealthChanged) : Ты привязываешь(подписываешь) свою функцию HealthChanged к этому колокольчику.
+    3 AddLambda([this](const FOnAttributeChangeData& Data) : Ты привязываешь(подписываешь) свою лямбда функцию к этому колокольчику.
     4. Теперь : Как только ASC изменит здоровье(от урона или хила), он автоматически вызовет твою функцию HealthChanged.
     */
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetHealthAttribute()).AddUObject(this, &UOverlayWidgetController::HealthChanged);
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetMaxHealthAttribute()).AddUObject(this, &UOverlayWidgetController::MaxHealthChanged);
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetManaAttribute()).AddUObject(this, &UOverlayWidgetController::ManaChanged);
-    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetMaxManaAttribute()).AddUObject(this, &UOverlayWidgetController::MaxManaChanged);
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetHealthAttribute()).AddLambda(
+        [this](const FOnAttributeChangeData& Data)
+        {
+            OnHealthChanged.Broadcast(Data.NewValue);
+        });
+
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetMaxHealthAttribute()).AddLambda(
+        [this](const FOnAttributeChangeData& Data)
+        {
+            OnMaxHealthChanged.Broadcast(Data.NewValue);
+        });
+
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetManaAttribute()).AddLambda(
+        [this](const FOnAttributeChangeData& Data)
+        {
+            OnManaChanged.Broadcast(Data.NewValue);
+        });
+
+    AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetMaxManaAttribute()).AddLambda(
+        [this](const FOnAttributeChangeData& Data)
+        {
+            OnMaxManaChanged.Broadcast(Data.NewValue);
+        });
+
     Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
         [this](const FGameplayTagContainer& AssetTags /*Мы получаём AssetTags из делегата EffectAssetTags*/)
         {
@@ -54,31 +74,6 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
     );
 }
 
-/** 
-Эта функция — посредник. Она срабатывает «в ответ» на изменения в GAS.
-1. сonst FOnAttributeChangeData& Data: Когда GAS вызывает эту функцию, он передает в неё структуру Data.
-   В ней лежит информация о том, какое значение было старым, и какое стало новым.
-2. OnHealthChanged.Broadcast(Data.NewValue): Твой контроллер берет новое значение из Data.NewValue и пересылает его дальше — в Блюпринт твоего виджета.
-*/
-void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
-{
-    OnHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
-{
-    OnMaxHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) const
-{
-    OnManaChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) const
-{
-    OnMaxManaChanged.Broadcast(Data.NewValue);
-}
 /**
 Почему это сделано именно так? (Архитектура)
 Ты выстроил цепочку связей:
