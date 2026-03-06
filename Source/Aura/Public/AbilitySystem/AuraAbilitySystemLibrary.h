@@ -8,6 +8,7 @@
 
 
 class UOverlayWidgetController;
+class UAttributeMenuWidgetController;
 /**
  * 
  */
@@ -16,7 +17,11 @@ class AURA_API UAuraAbilitySystemLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(Blueprin	tPure, Category = "AuraAbilitySystemLibrary|WidgetControoler")
+	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|WidgetControoler")
 	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|WidgetControoler")
+	static UAttributeMenuWidgetController* GetAttributeMenuWidgetController(const UObject* WorldContextObject);
+
 	
 };
