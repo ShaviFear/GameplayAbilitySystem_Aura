@@ -23,10 +23,7 @@ InitHealth(float NewVal) — инициализирует значение.*/
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
-//class AbilitySystemComponent;
-class EffectContextHandle;
-
-
+DECLARE_DELEGATE_RetVal(FGameplayAttribute, FAttributeSignature);
 
 USTRUCT()
 struct FEffectProperties
@@ -65,6 +62,11 @@ struct FEffectProperties
 
 };
 
+//Template for function pointers
+//Указатель на свободную (или статическую) функцию(*), которая не принимает аргументов() и возвращает T
+template<typename T>
+using TFuncPtr = T(*)();
+
 /**
  *
  */
@@ -78,12 +80,11 @@ public:
 
 	/** Регистрирует переменные для сетевой репликации (передачи данных от сервера к клиентам). */
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-	/** Вызывается ПЕРЕД изменением атрибута. Идеальное место для "клампинга" (ограничения значений, например, чтобы Health не стало > MaxHealth). */
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
+	TMap<FGameplayTag, TFuncPtr<FGameplayAttribute>> TagsToAttributes;
+	
 	/*
 	*  Primary Attributes
 	*/
