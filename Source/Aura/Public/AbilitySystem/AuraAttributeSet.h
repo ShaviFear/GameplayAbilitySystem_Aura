@@ -157,6 +157,13 @@ public:
 	FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Mana);
 
+	/*
+	*  Vital Attributes
+	*/
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage);
+
 	/* * OnRep-функции (RepNotify).
 	 * Вызываются на клиентах, когда сервер прислал новое значение атрибута.
 	 * Нужны, чтобы система способностей (GAS) на клиенте узнала об изменениях и обновила UI.
