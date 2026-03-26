@@ -4,13 +4,18 @@
 #include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
+#include "AuraGameplayTags.h"
 
 struct AuraDamageStatics
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(Armor)
+	DECLARE_ATTRIBUTE_CAPTUREDEF(ArmorPenetration)
+	DECLARE_ATTRIBUTE_CAPTUREDEF(BlockChance)
 	AuraDamageStatics()
 	{
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, Armor, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, ArmorPenetration, Source, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAuraAttributeSet, BlockChance, Target, false);
 	}
 };
 
@@ -23,6 +28,8 @@ static const AuraDamageStatics& DamageStatics()
 UExecCalc_Damage::UExecCalc_Damage()
 {
 	RelevantAttributesToCapture.Add(DamageStatics().ArmorDef);
+	RelevantAttributesToCapture.Add(DamageStatics().ArmorPenetrationDef);
+	RelevantAttributesToCapture.Add(DamageStatics().BlockChanceDef);
 }
 
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, OUT FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
@@ -49,25 +56,29 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	EvaluationParameters.SourceTags = SourceTags;
 	EvaluationParameters.TargetTags = TargetTags;
 
-	// 4. Объявляем переменную, куда будет записан результат вычисления брони.
-	float Armor = 0.f;
+	//Get Damage Set by Caller Magnitude
+	float Damage = Spec.GetSetByCallerMagnitude(FAuraGameplayTags::Get().Damage);
 
-	// 5. Самый важный момент: Пытаемся вычислить величину атрибута Armor, который мы "захватили" ранее в DamageStatics.
-	// Мы передаем ArmorDef (определение захвата), параметры с тегами и ссылку на переменную Armor, куда запишется результат.
-	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, Armor);
+	float TargetBlockChance = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvaluationParameters, TargetBlockChance);
+	TargetBlockChance = FMath::Max<float>(TargetBlockChance, 0.f);
 
-	// 6. Математическая страховка: гарантируем, что броня не будет отрицательной (ниже 0).
-	// Даже если дебаффы ушли в минус, для формул мы берем минимум 0.
-	Armor = FMath::Max<float>(0.f, Armor);
+	bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
+	Damage = bBlocked ? Damage / 2.f : Damage;
 
-	// 7. Инкремент (временный или тестовый код). 
-	// Ты просто увеличиваешь значение брони на 1. Обычно здесь идет сложная формула урона.
-	++Armor;
+	float TargetArmor = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, TargetArmor);
+	TargetArmor = FMath::Max<float>(TargetArmor, 0.f);
 
-	// 8. Создаем объект "вычисленных данных модификатора".
-	// Мы говорим: "Мы хотим изменить свойство ArmorProperty (броня цели), используя операцию Additive (сложение), 
-	// и прибавить к нему наше вычисленное значение Armor".
-	const FGameplayModifierEvaluatedData EvaluatedData(DamageStatics().ArmorProperty, EGameplayModOp::Additive, Armor);
+	float SourceArmorPenetration = 0.f;
+	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorPenetrationDef, EvaluationParameters, SourceArmorPenetration);
+	SourceArmorPenetration = FMath::Max<float>(SourceArmorPenetration, 0.f);
+
+	//Armor Penetration ignores a percentage of the Target's Armor
+	const float EffectiveArmor = TargetArmor *= (100 - SourceArmorPenetration * 0.25f) / 100.f;
+	Damage *= (100 - EffectiveArmor * 0.333f) / 100;
+
+	const FGameplayModifierEvaluatedData EvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
 
 	// 9. Отправляем результат в выходные параметры.
 	// Это сообщает системе GAS: "Расчет окончен, примени этот модификатор к конечному результату".
