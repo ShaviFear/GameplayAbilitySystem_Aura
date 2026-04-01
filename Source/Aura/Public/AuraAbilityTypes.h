@@ -18,19 +18,19 @@ public:
     
     virtual UScriptStruct* GetScriptStruct() const
     {
-        return FAuraGameplayEffectContext::StaticStruct();
+        return StaticStruct();
     }
 
-   /* virtual FAuraGameplayEffectContext* Duplicate() const override
+    virtual FAuraGameplayEffectContext* Duplicate() const
     {
         FAuraGameplayEffectContext* NewContext = new FAuraGameplayEffectContext();
         *NewContext = *this;
-        if (GetInstigator())
+        if (GetHitResult())
         {
-            NewContext->AddInstigator(GetInstigator(), GetEffectCauser());
+            NewContext->AddHitResult(*GetHitResult(), true);
         }
         return NewContext;
-    }*/
+    }
 
     virtual bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 
@@ -40,10 +40,8 @@ protected:
 
     UPROPERTY()
     bool bIsCriticalHit = false;
-
 };
 
-/*// ЭТО КРИТИЧЕСКИ ВАЖНО: без этого блока будет ошибка линковки
 template<>
 struct TStructOpsTypeTraits<FAuraGameplayEffectContext> : public TStructOpsTypeTraitsBase2<FAuraGameplayEffectContext>
 {
@@ -52,4 +50,4 @@ struct TStructOpsTypeTraits<FAuraGameplayEffectContext> : public TStructOpsTypeT
         WithNetSerializer = true,
         WithCopy = true
     };
-};*/
+};
